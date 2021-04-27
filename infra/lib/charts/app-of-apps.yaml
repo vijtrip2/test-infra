@@ -6,8 +6,8 @@ metadata:
 spec:
   interval: 30s
   ref:
-    branch: main
-  url: https://github.com/aws-controllers-k8s/test-infra
+    branch: local-prow-test
+  url: https://github.com/vijtrip2/test-infra
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
