@@ -7,7 +7,7 @@ periodics:
     containers:
     - image: alpine
       command: ["/bin/date"]
-- interval: 1m
+- interval: 1h
   agent: kubernetes
   name: echo-test-copy
   spec:
