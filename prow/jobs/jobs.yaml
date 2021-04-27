@@ -14,4 +14,5 @@ periodics:
     serviceAccountName: pre-submit-service-account
     containers:
       - image: alpine
-        command: ["ls -al /"]
+        command: ["/bin/sh"]
+        args: ["-c", "ls -al /"]
