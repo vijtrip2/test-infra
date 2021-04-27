@@ -16,3 +16,16 @@ periodics:
       - image: alpine
         command: ["/bin/sh"]
         args: ["-c", "ls -al /"]
+
+postsubmits:
+  vijtrip2/cdk8s-test:
+  - name: push-prow-test
+    decorate: true
+    spec:
+      serviceAccountName: pre-submit-service-account
+      containers:
+        - image: alpine
+          command: ["/bin/sh"]
+          args: ["-c", "ls -al /"]
+    branches:
+    - ^prow-test$
