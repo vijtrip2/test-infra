@@ -18,7 +18,7 @@ periodics:
         args: ["-c", "ls -al /"]
 
 postsubmits:
-  vijtrip2/cdk8s-test:
+  aws-controllers-k8s/test-infra:
   - name: push-prow-test
     decorate: true
     spec:
@@ -28,4 +28,4 @@ postsubmits:
           command: ["/bin/sh"]
           args: ["-c", "ls -al /"]
     branches:
-    - ^prow-test$
+    - ^prow-local-test$
