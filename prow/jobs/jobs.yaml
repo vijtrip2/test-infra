@@ -19,7 +19,7 @@ periodics:
 
 postsubmits:
   vijtrip2/test-infra:
-  - name: push-prow-test
+  - name: push-prow-testt
     decorate: true
     spec:
       serviceAccountName: pre-submit-service-account
