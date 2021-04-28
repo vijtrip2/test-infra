@@ -19,7 +19,6 @@ metadata:
 data:
   plugins.yaml: |
     {{ .Values.github.organisation }}:
-      plugins:
       - approve
       - assign
       - blunderbuss
@@ -35,7 +34,6 @@ data:
       - wip
       - yuks
     vijtrip2/test-infra:
-      plugins:
       - approve
       - assign
       - blunderbuss
