@@ -25,32 +25,34 @@ data:
 
     plugins:
       {{ .Values.github.organisation }}:
-      - approve
-      - assign
-      - blunderbuss
-      - cat
-      - dog
-      - help
-      - heart
-      - hold
-      - label
-      - lgtm
-      - trigger
-      - verify-owners
-      - wip
-      - yuks
+        plugins:
+        - approve
+        - assign
+        - blunderbuss
+        - cat
+        - dog
+        - help
+        - heart
+        - hold
+        - label
+        - lgtm
+        - trigger
+        - verify-owners
+        - wip
+        - yuks
       vijtrip2/test-infra:
-      - approve
-      - assign
-      - blunderbuss
-      - cat
-      - dog
-      - help
-      - heart
-      - hold
-      - label
-      - lgtm
-      - trigger
-      - verify-owners
-      - wip
-      - yuks
+        plugins:
+        - approve
+        - assign
+        - blunderbuss
+        - cat
+        - dog
+        - help
+        - heart
+        - hold
+        - label
+        - lgtm
+        - trigger
+        - verify-owners
+        - wip
+        - yuks
