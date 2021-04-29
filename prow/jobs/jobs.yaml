@@ -12,6 +12,11 @@ postsubmits:
   vijtrip2/test-infra:
   - name: push-prow-test
     decorate: true
+    extra_refs:
+    - org: vijtrip2
+      repo: apigatewayv2-controller
+      base_ref: main
+      workdir: true
     spec:
       serviceAccountName: post-submit-service-account
       containers:
