@@ -20,8 +20,8 @@ data:
   plugins.yaml: |
     triggers:
     - repos:
-      - vijtrip2/test-infra
-      only_org_members: false
+      - vijtrip2
+      only_org_members: true
 
     plugins:
       {{ .Values.github.organisation }}:
@@ -40,12 +40,20 @@ data:
         - verify-owners
         - wip
         - yuks
-      vijtrip2/test-infra:
+      vijtrip2:
         plugins:
         - approve
         - assign
+        - blunderbuss
+        - cat
+        - dog
+        - help
+        - heart
         - hold
         - label
         - lgtm
         - trigger
+        - verify-owners
+        - wip
+        - yuks
 

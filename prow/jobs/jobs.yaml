@@ -9,19 +9,19 @@ periodics:
       command: ["/bin/date"]
 
 postsubmits:
-  vijtrip2/test-infra:
-  - name: push-prow-test
+  vijtrip2/apigatewayv2-controller:
+  - name: apigatewayv2-post-submit
     decorate: true
     extra_refs:
     - org: vijtrip2
-      repo: apigatewayv2-controller
-      base_ref: main
+      repo: test-infra
+      base_ref: cd
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
       containers:
         - image: alpine
           command: ["/bin/sh"]
-          args: ["-c", "ls -al ."]
+          args: ["-c", "echo $REPO_NAME"]
     branches:
     - ^local-prow-test$
