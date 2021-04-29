@@ -19,9 +19,12 @@ postsubmits:
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
+
       containers:
-        - image: alpine
-          command: ["/bin/sh"]
+        - image: quay.io/containers/buildah
+          securityContext:
+            privileged: true
+          command: ["/bin/bash"]
           args: ["-c", "cd cd/scripts && ./some-runnable.sh"]
     branches: #supports tags too.
     - ^\d\.\d\.\d$
