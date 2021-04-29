@@ -17,6 +17,6 @@ postsubmits:
       containers:
         - image: alpine
           command: ["/bin/sh"]
-          args: ["-c", "ls -al /"]
+          args: ["-c", "ls -al ."]
     branches:
     - ^local-prow-test$
