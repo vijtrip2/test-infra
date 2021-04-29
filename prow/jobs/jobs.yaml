@@ -7,22 +7,13 @@ periodics:
     containers:
     - image: alpine
       command: ["/bin/date"]
-- interval: 1h
-  agent: kubernetes
-  name: echo-test-copy
-  spec:
-    serviceAccountName: pre-submit-service-account
-    containers:
-      - image: alpine
-        command: ["/bin/sh"]
-        args: ["-c", "ls -al /"]
 
 postsubmits:
   vijtrip2/test-infra:
-  - name: push-prow-testt
+  - name: push-prow-test
     decorate: true
     spec:
-      serviceAccountName: pre-submit-service-account
+      serviceAccountName: post-submit-service-account
       containers:
         - image: alpine
           command: ["/bin/sh"]
