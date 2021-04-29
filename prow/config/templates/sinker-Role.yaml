@@ -52,16 +52,16 @@ rules:
       - get
   - apiGroups:
       - coordination.k8s.io
-      resources:
-        - leases
-      verbs:
-        - create
+    resources:
+      - leases
+    verbs:
+      - create
   - apiGroups:
       - coordination.k8s.io
-      resources:
-        - leases
-      resourceNames:
-        - prow-sinker-leaderlock
-      verbs:
-        - get
-        - update
+    resources:
+      - leases
+    resourceNames:
+      - prow-sinker-leaderlock
+    verbs:
+      - get
+      - update
