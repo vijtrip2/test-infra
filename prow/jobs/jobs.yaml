@@ -22,6 +22,6 @@ postsubmits:
       containers:
         - image: alpine
           command: ["/bin/sh"]
-          args: ["-c", "echo $REPO_NAME && echo $PULL_BASE_REF && echo $PULL_BASE_SHA && echo $PULL_REFS"]
+          args: ["-c", "cd cd/scripts && ./some-runnable.sh"]
     branches: #supports tags too.
     - ^\d\.\d\.\d$
