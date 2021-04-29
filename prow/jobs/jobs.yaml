@@ -24,4 +24,4 @@ postsubmits:
           command: ["/bin/sh"]
           args: ["-c", "echo $REPO_NAME && echo $JOB_SPEC"]
     branches:
-    - ^refs/tags/
+    - ^.+
