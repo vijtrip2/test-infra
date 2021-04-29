@@ -15,7 +15,7 @@ postsubmits:
     extra_refs:
     - org: vijtrip2
       repo: test-infra
-      base_ref: cd
+      base_ref: local-prow-test
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
