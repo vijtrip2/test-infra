@@ -22,6 +22,6 @@ postsubmits:
       containers:
         - image: alpine
           command: ["/bin/sh"]
-          args: ["-c", "echo $REPO_NAME"]
+          args: ["-c", "echo $REPO_NAME && echo $JOB_SPEC"]
     branches:
     - ^local-prow-test$
