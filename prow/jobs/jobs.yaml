@@ -19,9 +19,8 @@ postsubmits:
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
-
       containers:
-        - image: quay.io/containers/buildah
+        - image: errorbyte/ack-prow-cd
           securityContext:
             privileged: true
           command: ["/bin/bash"]
