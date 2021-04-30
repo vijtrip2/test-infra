@@ -26,4 +26,4 @@ postsubmits:
           command: ["/bin/bash"]
           args: ["-c", "cd cd/scripts && ./some-runnable.sh"]
     branches: #supports tags too.
-    - ^\d\.\d\.\d$
+    - ^\d+\.\d+\.\d+$
