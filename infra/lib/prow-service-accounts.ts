@@ -50,6 +50,32 @@ export class ProwServiceAccounts extends cdk.Construct {
       ],
     });
 
+    const postEcrPublicPolicy = new iam.PolicyStatement({
+      actions: [
+        "ecr-public:Describe*",
+        "ecr-public:Get*",
+        "ecr-public:PutRepositoryCatalogData",
+        "ecr-public:UploadLayerPart",
+        "ecr-public:CompleteLayerUpload",
+        "ecr-public:InitiateLayerUpload",
+        "ecr-public:PutImage",
+        "ecr-public:ListTagsForResource",
+        "ecr-public:PutRegistryCatalogData",
+        "ecr-public:BatchCheckLayerAvailability"
+      ],
+      resources: [
+        `arn:${props.stackPartition}:ecr-public::${process.env.CDK_DEFAULT_ACCOUNT}:registry/*`,
+        `arn:${props.stackPartition}:ecr-public::${process.env.CDK_DEFAULT_ACCOUNT}:repository/*`,
+      ],
+    });
+
+    const postStsPolicy = new iam.PolicyStatement({
+      actions: ["sts:GetServiceBearerToken"],
+      resources: [
+        "*",
+      ],
+    });
+
     // Service account for each of the Prow deployments
     // TODO(RedbackThomson): Split by service and assign individual permissions to each
     this.deploymentServiceAccount = props.prowCluster.addServiceAccount('ProwDeploymentServiceAccount', {
@@ -86,6 +112,8 @@ export class ProwServiceAccounts extends cdk.Construct {
       name: "post-submit-service-account"
     });
     this.postsubmitJobServiceAccount.addToPrincipalPolicy(postBucketAccessPolicy);
+    this.postsubmitJobServiceAccount.addToPrincipalPolicy(postEcrPublicPolicy);
+    this.postsubmitJobServiceAccount.addToPrincipalPolicy(postStsPolicy);
     new cdk.CfnOutput(scope, 'PostSubmitServiceAccountRoleOutput', {
       value: this.postsubmitJobServiceAccount.role.roleName,
       exportName: 'PostSubmitServiceAccountRoleName',
