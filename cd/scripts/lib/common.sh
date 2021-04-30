@@ -41,7 +41,7 @@ is_installed() {
 }
 
 perform_buildah_and_helm_login() {
-  local __pw=$(aws ecr-public get-login-password)
+  local __pw=$(aws ecr-public get-login-password --region us-east-1)
   echo "$__pw" | buildah login -u AWS --password-stdin public.ecr.aws
   export HELM_EXPERIMENTAL_OCI=1
   echo "$__pw" | helm registry login -u AWS --password-stdin public.ecr.aws
