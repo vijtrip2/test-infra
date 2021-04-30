@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eox pipefail
+set -eo pipefail
 
 USAGE="
 Usage:
@@ -86,45 +86,45 @@ echo "SERVICE_CONTROLLER_GIT_VERSION: $VERSION"
 echo "SERVICE_CONTROLLER_GIT_COMMIT: $SERVICE_CONTROLLER_GIT_COMMIT"
 echo "DOCKER_BUILD_CONTEXT: $DOCKER_BUILD_CONTEXT"
 
-#buildah bud \
-#  --quiet="$QUIET" \
-#  -t "$AWS_SERVICE_DOCKER_IMG" \
-#  -f "$CONTROLLER_IMAGE_DOCKERFILE_PATH" \
-#  --build-arg service_alias="$AWS_SERVICE" \
-#  --build-arg service_controller_git_version="$VERSION" \
-#  --build-arg service_controller_git_commit="$SERVICE_CONTROLLER_GIT_COMMIT" \
-#  --build-arg build_date="$BUILD_DATE" \
-#  "${DOCKER_BUILD_CONTEXT}"
-#
-#if [ $? -ne 0 ]; then
-#  exit 2
-#fi
-#
-#echo "Pushing '$AWS_SERVICE' controller image with tag: ${AWS_SERVICE_DOCKER_IMG_TAG}"
-#
-#buildah push "${AWS_SERVICE_DOCKER_IMG}"
-#
-#if [ $? -ne 0 ]; then
-#  exit 2
-#fi
-#
-#DEFAULT_HELM_REGISTRY="public.ecr.aws/aws-controllers-k8s"
-#DEFAULT_HELM_REPO="chart"
-#DEFAULT_RELEASE_VERSION="unknown"
-#
-#HELM_REGISTRY=${HELM_REGISTRY:-$DEFAULT_HELM_REGISTRY}
-#HELM_REPO=${HELM_REPO:-$DEFAULT_HELM_REPO}
-#
-#export HELM_EXPERIMENTAL_OCI=1
-#
-#if [[ -d "$SERVICE_CONTROLLER_DIR/helm" ]]; then
-#    echo -n "Generating Helm chart package for $AWS_SERVICE@$VERSION ... "
-#    helm chart save "$SERVICE_CONTROLLER_DIR"/helm/ "$HELM_REGISTRY/$HELM_REPO:$AWS_SERVICE-$VERSION"
-#    echo "ok."
-#    helm chart push "$HELM_REGISTRY/$HELM_REPO:$AWS_SERVICE-$VERSION"
-#else
-#    echo "Error building Helm packages:" 1>&2
-#    echo "$SERVICE_CONTROLLER_SOURCE_PATH/helm is not a directory." 1>&2
-#    echo "${USAGE}"
-#    exit 1
-#fi
+buildah bud \
+  --quiet="$QUIET" \
+  -t "$AWS_SERVICE_DOCKER_IMG" \
+  -f "$CONTROLLER_IMAGE_DOCKERFILE_PATH" \
+  --build-arg service_alias="$AWS_SERVICE" \
+  --build-arg service_controller_git_version="$VERSION" \
+  --build-arg service_controller_git_commit="$SERVICE_CONTROLLER_GIT_COMMIT" \
+  --build-arg build_date="$BUILD_DATE" \
+  "${DOCKER_BUILD_CONTEXT}"
+
+if [ $? -ne 0 ]; then
+  exit 2
+fi
+
+echo "Pushing '$AWS_SERVICE' controller image with tag: ${AWS_SERVICE_DOCKER_IMG_TAG}"
+
+buildah push "${AWS_SERVICE_DOCKER_IMG}"
+
+if [ $? -ne 0 ]; then
+  exit 2
+fi
+
+DEFAULT_HELM_REGISTRY="public.ecr.aws/aws-controllers-k8s"
+DEFAULT_HELM_REPO="chart"
+DEFAULT_RELEASE_VERSION="unknown"
+
+HELM_REGISTRY=${HELM_REGISTRY:-$DEFAULT_HELM_REGISTRY}
+HELM_REPO=${HELM_REPO:-$DEFAULT_HELM_REPO}
+
+export HELM_EXPERIMENTAL_OCI=1
+
+if [[ -d "$SERVICE_CONTROLLER_DIR/helm" ]]; then
+    echo -n "Generating Helm chart package for $AWS_SERVICE@$VERSION ... "
+    helm chart save "$SERVICE_CONTROLLER_DIR"/helm/ "$HELM_REGISTRY/$HELM_REPO:$AWS_SERVICE-$VERSION-do-not-use"
+    echo "ok."
+    helm chart push "$HELM_REGISTRY/$HELM_REPO:$AWS_SERVICE-$VERSION-do-not-use"
+else
+    echo "Error building Helm packages:" 1>&2
+    echo "$SERVICE_CONTROLLER_SOURCE_PATH/helm is not a directory." 1>&2
+    echo "${USAGE}"
+    exit 1
+fi
