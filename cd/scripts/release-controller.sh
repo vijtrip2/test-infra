@@ -48,6 +48,8 @@ check_is_installed buildah
 check_is_installed aws
 check_is_installed helm
 
+aws s3 ls
+
 # Setup the destination repository for docker and helm
 perform_buildah_and_helm_login
 
