@@ -24,6 +24,6 @@ postsubmits:
           securityContext:
             privileged: true
           command: ["/bin/bash"]
-          args: ["-c", "cd cd/scripts && ./some-runnable.sh"]
+          args: ["-c", "cd cd/scripts && ./release-controller.sh"]
     branches: #supports tags too.
     - ^\d+\.\d+\.\d+$
