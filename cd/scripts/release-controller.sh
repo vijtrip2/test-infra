@@ -62,7 +62,7 @@ if [[ $PULL_BASE_REF = stable ]]; then
     exit 2
   fi
 
-  _major_version= $(echo "$_semver_tag" | cut -d"." -f1)
+  _major_version=$(echo "$_semver_tag" | cut -d"." -f1)
   if [[ -z "$_major_version" ]]; then
     echo "Unable to determine major version from latest semver tag on 'stable' branch"
     exit 2
