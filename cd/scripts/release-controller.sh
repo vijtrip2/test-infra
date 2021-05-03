@@ -57,8 +57,8 @@ if [[ $PULL_BASE_REF = stable ]]; then
   fi
   echo "$_semver_tag"
 
-  if ! (echo "$_semver_tag" | grep -Eq "^v\d+\.\d+\.\d+$"); then
-    echo "semver tag on stable branch should have format ^v\d+\.\d+\.\d+$"
+  if ! (echo "$_semver_tag" | grep -Eq "^v[0-9]+\.[0-9]+\.[0-9]+$"); then
+    echo "semver tag on stable branch should have format ^v[0-9]+\.[0-9]+\.[0-9]+$"
     exit 2
   fi
 
