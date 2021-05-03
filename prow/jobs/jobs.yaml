@@ -27,3 +27,4 @@ postsubmits:
           args: ["-c", "cd cd/scripts && ./release-controller.sh"]
     branches: #supports tags too.
     - ^v\d+\.\d+\.\d+$
+    - stable
