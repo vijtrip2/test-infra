@@ -55,6 +55,7 @@ if [[ $PULL_BASE_REF = stable ]]; then
     echo "Unable to find semver tag on the 'stable' branch"
     exit 2
   fi
+  echo "$_semver_tag"
 
   if ! (echo "$_semver_tag" | grep -Eq "^v\d+\.\d+\.\d+$"); then
     echo "semver tag on stable branch should have format ^v\d+\.\d+\.\d+$"
