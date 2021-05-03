@@ -9,7 +9,7 @@ periodics:
       command: ["/bin/date"]
 
 postsubmits:
-  vijtrip2/apigatewayv2-controller:
+  vijtrip2/*: #TODO: run postsubmit jobs for all repos
   - name: apigatewayv2-post-submit
     decorate: true
     extra_refs:
