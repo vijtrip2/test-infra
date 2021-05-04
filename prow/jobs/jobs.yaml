@@ -23,8 +23,7 @@ postsubmits:
         - image: errorbyte/ack-prow-cd
           securityContext:
             privileged: true
-          command: ["/bin/bash"]
-          args: ["-c", "cd cd/scripts && ./release-controller.sh"]
+          command: ["/bin/bash", "-c", "cd cd/scripts && ./release-controller.sh"]
     branches: #supports tags too.
-    - ^v\d+\.\d+\.\d+$
+    - ^v[0-9]+\.[0-9]+\.[0-9]+$
     - stable

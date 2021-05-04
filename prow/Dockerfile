@@ -1,5 +1,5 @@
 # Container image for running ACK CD prow jobs.
-FROM quay.io/containers/buildah
+FROM quay.io/containers/buildah:v1.20.1
 RUN dnf -y install \
 		which \
 		git \
@@ -11,4 +11,3 @@ RUN dnf -y install \
     && curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 \
     && chmod +x get_helm.sh \
     && ./get_helm.sh
-ENTRYPOINT ["/bin/bash", "-c", "echo Hello from ACK Prow CD container."]
