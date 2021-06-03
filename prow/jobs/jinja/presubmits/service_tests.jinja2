@@ -1,0 +1,47 @@
+{% for service in aws_services  %}
+  aws-controllers-k8s/{{ service }}-controller:
+  - name: {{ service }}-kind-e2e
+    decorate: true
+    labels:
+      preset-dind-enabled: "true"
+      preset-kind-volume-mounts: "true"
+    extra_refs:
+    - org: aws-controllers-k8s
+      repo: community
+      base_ref: main
+      workdir: true
+    - org: aws-controllers-k8s
+      repo: test-infra
+      base_ref: main
+      workdir: false
+    spec:
+      serviceAccountName: pre-submit-service-account
+      containers:
+      - image: public.ecr.aws/aws-controllers-k8s/prow:prow-integration-0.0.1
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            cpu: 2
+          limits:
+            cpu: 8
+        env:
+        - name: SERVICE
+          value: {{ service }}
+        command: ["wrapper.sh", "bash", "-c", "make kind-test SERVICE=$SERVICE"]
+        
+  - name: {{ service }}-unit-test
+    decorate: true
+    spec:
+      serviceAccountName: pre-submit-service-account
+      containers:
+      - image: public.ecr.aws/aws-controllers-k8s/prow:prow-unit-0.0.1
+        resources:
+          limits:
+            cpu: 2
+        env:
+        - name: SERVICE
+          value: {{ service }}
+        command: ["make", "test"]
+
+{% endfor %}
