@@ -59,23 +59,23 @@ postsubmits:
     - stable
 
   vijtrip2/ecr-controller:
-  - name: ecr-post-submit
-    decorate: true
-    extra_refs:
-    - org: vijtrip2
-      repo: test-infra
-      base_ref: soak-on-release
-      workdir: true
-    spec:
-      serviceAccountName: post-submit-service-account
-      containers:
-        - image: public.ecr.aws/aws-controllers-k8s/prow:prow-deploy-0.0.2
-          securityContext:
-            privileged: true
-          command: ["/bin/bash", "-c", "cd cd/scripts && ./release-controller.sh"]
-    branches: #supports tags too.
-    - ^v[0-9]+\.[0-9]+\.[0-9]+$
-    - stable
+#  - name: ecr-post-submit
+#    decorate: true
+#    extra_refs:
+#    - org: vijtrip2
+#      repo: test-infra
+#      base_ref: soak-on-release
+#      workdir: true
+#    spec:
+#      serviceAccountName: post-submit-service-account
+#      containers:
+#        - image: public.ecr.aws/aws-controllers-k8s/prow:prow-deploy-0.0.2
+#          securityContext:
+#            privileged: true
+#          command: ["/bin/bash", "-c", "cd cd/scripts && ./release-controller.sh"]
+#    branches: #supports tags too.
+#    - ^v[0-9]+\.[0-9]+\.[0-9]+$
+#    - stable
 
   - name: ecr-soak-on-release
     decorate: true
