@@ -58,13 +58,13 @@ postsubmits:
     - ^v[0-9]+\.[0-9]+\.[0-9]+$
     - stable
 
-  aws-controllers-k8s/ecr-controller:
+  vijtrip2/ecr-controller:
   - name: ecr-post-submit
     decorate: true
     extra_refs:
-    - org: aws-controllers-k8s
+    - org: vijtrip2
       repo: test-infra
-      base_ref: main
+      base_ref: soak-on-release
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
@@ -80,9 +80,9 @@ postsubmits:
   - name: ecr-soak-on-release
     decorate: true
     extra_refs:
-    - org: aws-controllers-k8s
+    - org: vijtrip2
       repo: test-infra
-      base_ref: main
+      base_ref: soak-on-release
       workdir: true
     spec:
       serviceAccountName: post-submit-service-account
