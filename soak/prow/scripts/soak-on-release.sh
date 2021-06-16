@@ -22,6 +22,24 @@ Environment variables:
 AWS_SERVICE=$(echo "$REPO_NAME" | rev | cut -d"-" -f2- | rev | tr '[:upper:]' '[:lower:]')
 VERSION=$PULL_BASE_REF
 
+ASSUME_EXIT_VALUE=0
+ACK_PROW_JOB_ARN=$(aws ssm get-parameter --name /ack/postsubmitjobrole --query Parameter.Value --output text 2>/dev/null) || ASSUME_EXIT_VALUE=$?
+if [ "$ASSUME_EXIT_VALUE" -ne 0 ]; then
+  >&2 echo "soak-on-release.sh] [SETUP] Could not find prow postsubmit job role for $AWS_SERVICE"
+  exit 1
+fi
+export ACK_PROW_JOB_ARN
+>&2 echo "soak-on-release.sh] [SETUP] exported ACK_PROW_JOB_ARN"
+
+assume_base_creds() {
+  unset AWS_ACCESS_KEY_ID && unset AWS_SECRET_ACCESS_KEY && unset AWS_SESSION_TOKEN
+  local _ASSUME_COMMAND=$(aws sts assume-role --role-arn $ACK_PROW_JOB_ARN --role-session-name 'ack-soak-test' --duration-seconds 3600 | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
+  eval $_ASSUME_COMMAND
+  >&2 echo "soak-on-release.sh] [INFO] Assumed ACK_PROW_JOB_ARN"
+}
+
+assume_base_creds
+
 # Important directory references based on prowjob configuration.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SCRIPTS_DIR=$DIR
@@ -47,6 +65,8 @@ perform_buildah_and_helm_login
 
 # Assume the iam role used to create the EKS soak cluster
 assume_soak_creds() {
+  unset AWS_ACCESS_KEY_ID && unset AWS_SECRET_ACCESS_KEY && unset AWS_SESSION_TOKEN
+  assume_base_creds
   local _ASSUME_COMMAND=$(aws sts assume-role --role-arn $ACK_ROLE_ARN --role-session-name 'ack-soak-test' --duration-seconds 3600 | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
   eval $_ASSUME_COMMAND
   >&2 echo "soak-on-release.sh] [INFO] Assumed ACK_ROLE_ARN"
