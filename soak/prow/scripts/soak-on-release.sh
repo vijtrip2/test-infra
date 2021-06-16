@@ -150,12 +150,12 @@ chart_name=$(helm list -f '^soak-test-runner$' -n default -o json | jq -r '.[]|.
 && helm uninstall -n default $SOAK_CHART_RELEASE_NAME >/dev/null
 
 cd "$TEST_INFRA_DIR"/soak/helm/ack-soak-test
-helm install -n default $SOAK_CHART_RELEASE_NAME . \
+helm install --debug --dry-run -n default $SOAK_CHART_RELEASE_NAME . \
     --set awsService=$AWS_SERVICE \
     --set soak.imageRepo="public.ecr.aws/aws-controllers-k8s/soak" \
     --set soak.imageTag=$AWS_SERVICE \
     --set soak.startTimeEpochSeconds=$(date +%s) \
-    --set soak.durationMinutes=1440 >/dev/null
+    --set soak.durationMinutes=1440
 
 # Loop until the Job executing soak test does not complete. Check again with 30 minutes interval.
 while kubectl get jobs/$AWS_SERVICE-soak-test -o=json | jq -r --exit-status '.status.completionTime'>/dev/null; [ $? -ne 0 ]
