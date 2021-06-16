@@ -111,15 +111,21 @@ export METRIC_SERVICE_TYPE_EVAL=".metrics.service.type = \"ClusterIP\""
 export AWS_REGION_EVAL=".aws.region = \"us-west-2\""
 export AWS_ACCOUNT_ID_EVAL=".aws.account_id = \"$AWS_ACCOUNT_ID\""
 
+>&2 echo "exported values variables"
+
 yq eval "$SERVICE_ACCOUNT_ANNOTATION_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_CREATE_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_TYPE_EVAL" -i values.yaml \
 && yq eval "$AWS_REGION_EVAL" -i values.yaml \
 && yq eval "$AWS_ACCOUNT_ID_EVAL" -i values.yaml
 
+>&2 echo "updated values.yaml"
+cat values.yaml
+
 export CONTROLLER_CHART_RELEASE_NAME="soak-test"
 chart_name=$(helm list -f '^soak-test$' -o json | jq -r '.[]|.name')
 [[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall $CONTROLLER_CHART_RELEASE_NAME
+>&2 echo "installing helm chart"
 helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Helm chart $CONTROLLER_CHART_RELEASE_NAME successfully installed."
 
