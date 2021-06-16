@@ -100,6 +100,7 @@ export AWS_ACCOUNT_ID
 
 aws eks update-kubeconfig --name soak-test-cluster
 kubectl config get-contexts
+kubectl config set-context --current --namespace=default
 >&2 echo "soak-on-release.sh] [INFO] Updated the kubeconfig to communicate with 'soak-test-cluster' eks cluster."
 
 export HELM_EXPERIMENTAL_OCI=1
