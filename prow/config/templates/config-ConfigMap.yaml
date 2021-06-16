@@ -35,12 +35,6 @@ data:
         required_approving_review_count: 1
       required_linear_history: true
 
-    plank:
-      default_decoration_configs:
-        '*':
-          timeout: 48h
-          grace_period: 10m
-
     deck:
       branding:
         background_color: '#FFFFFF'
@@ -77,6 +71,8 @@ data:
             [Your PR dashboard](https://{{ .Values.prow.domain }}/pr?{{ "query=is:pr+state:open+author:{{with index .Spec.Refs.Pulls 0}}{{.Author}}{{end}}" }}).
       default_decoration_configs:
         "*":
+          timeout: 48h
+          grace_period: 10m
           censor_secrets: true
           gcs_configuration:
             bucket: s3://{{ .Values.prow.presubmitsBucketName }}
