@@ -37,7 +37,7 @@ data:
 
     plank:
       default_decoration_configs:
-        * :
+        '*' :
             timeout: 48h
 
     deck:
