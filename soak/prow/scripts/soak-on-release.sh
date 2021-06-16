@@ -112,21 +112,15 @@ export METRIC_SERVICE_TYPE_EVAL=".metrics.service.type = \"ClusterIP\""
 export AWS_REGION_EVAL=".aws.region = \"us-west-2\""
 export AWS_ACCOUNT_ID_EVAL=".aws.account_id = \"$AWS_ACCOUNT_ID\""
 
->&2 echo "exported values variables"
-
 yq eval "$SERVICE_ACCOUNT_ANNOTATION_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_CREATE_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_TYPE_EVAL" -i values.yaml \
 && yq eval "$AWS_REGION_EVAL" -i values.yaml \
 && yq eval "$AWS_ACCOUNT_ID_EVAL" -i values.yaml
 
->&2 echo "updated values.yaml"
-cat values.yaml
-
 export CONTROLLER_CHART_RELEASE_NAME="soak-test"
 chart_name=$(helm list -f '^soak-test$' -o json | jq -r '.[]|.name')
 [[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall $CONTROLLER_CHART_RELEASE_NAME
->&2 echo "installing helm chart"
 helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Helm chart $CONTROLLER_CHART_RELEASE_NAME successfully installed."
 
@@ -156,13 +150,14 @@ helm install $SOAK_CHART_RELEASE_NAME . \
     --set soak.imageRepo="public.ecr.aws/aws-controllers-k8s/soak" \
     --set soak.imageTag=$AWS_SERVICE \
     --set soak.startTimeEpochSeconds=$(date +%s) \
-    --set soak.durationMinutes=1440
+    --set soak.durationMinutes=1440 >/dev/null
 
 # Loop until the Job executing soak test does not complete. Check again with 30 minutes interval.
 while kubectl get jobs/$AWS_SERVICE-soak-test -o=json | jq -r --exit-status '.status.completionTime'>/dev/null; [ $? -ne 0 ]
 do
-  >&2 echo "soak-on-release.sh] [INFO] Completion time is not present in the job status. Soak test is still running."
-  >&2 echo "soak-on-release.sh] [INFO] Sleeping for 30 mins..."
+  >&2 echo "soak-on-release.sh] [INFO] Current soak job($AWS_SERVICE-soak-test) status is $(kubectl get jobs/$AWS_SERVICE-soak-test -o=json | jq -r '.status')"
+  >&2 echo "soak-on-release.sh] [INFO] Completion time is not present in the job status. Soak test job is still running."
+  >&2 echo "soak-on-release.sh] [INFO] Current time is $(date) Sleeping for 30 mins..."
   sleep 1800
   # refresh the aws credentials to communicate with eks soak cluster
   assume_soak_creds
