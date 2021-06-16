@@ -98,7 +98,8 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 export AWS_ACCOUNT_ID
 >&2 echo "soak-on-release.sh] [SETUP] Exported ACCOUNT_ID."
 
-aws eks update-kubeconfig --name soak-test-cluster >/dev/null
+aws eks update-kubeconfig --name soak-test-cluster
+kubectl config get-contexts
 >&2 echo "soak-on-release.sh] [INFO] Updated the kubeconfig to communicate with 'soak-test-cluster' eks cluster."
 
 export HELM_EXPERIMENTAL_OCI=1
