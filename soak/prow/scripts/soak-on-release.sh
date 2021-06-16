@@ -122,11 +122,12 @@ yq eval "$SERVICE_ACCOUNT_ANNOTATION_EVAL" -i values.yaml \
 >&2 echo "updated values.yaml"
 cat values.yaml
 
+alias helm="helm -n default"
 export CONTROLLER_CHART_RELEASE_NAME="soak-test"
 chart_name=$(helm list -f '^soak-test$' -o json | jq -r '.[]|.name')
 [[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall $CONTROLLER_CHART_RELEASE_NAME
 >&2 echo "installing helm chart"
-helm install $CONTROLLER_CHART_RELEASE_NAME -n default . >/dev/null
+helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Helm chart $CONTROLLER_CHART_RELEASE_NAME successfully installed."
 
 # Build the soak test runner image
@@ -150,7 +151,7 @@ chart_name=$(helm list -f '^soak-test-runner$' -o json | jq -r '.[]|.name')
 && helm uninstall $SOAK_CHART_RELEASE_NAME >/dev/null
 
 cd "$TEST_INFRA_DIR"/soak/helm/ack-soak-test
-helm install $SOAK_CHART_RELEASE_NAME -n default . \
+helm install $SOAK_CHART_RELEASE_NAME . \
     --set awsService=$AWS_SERVICE \
     --set soak.imageRepo="public.ecr.aws/aws-controllers-k8s/soak" \
     --set soak.imageTag=$AWS_SERVICE \
