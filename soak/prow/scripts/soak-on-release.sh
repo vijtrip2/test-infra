@@ -98,9 +98,8 @@ AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 export AWS_ACCOUNT_ID
 >&2 echo "soak-on-release.sh] [SETUP] Exported ACCOUNT_ID."
 
-aws eks update-kubeconfig --name soak-test-cluster
-kubectl config get-contexts
-kubectl config set-context --current --namespace=default
+aws eks update-kubeconfig --name soak-test-cluster >/dev/null
+kubectl config set-context --current --namespace=default >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Updated the kubeconfig to communicate with 'soak-test-cluster' eks cluster."
 
 export HELM_EXPERIMENTAL_OCI=1
@@ -125,10 +124,10 @@ yq eval "$SERVICE_ACCOUNT_ANNOTATION_EVAL" -i values.yaml \
 cat values.yaml
 
 export CONTROLLER_CHART_RELEASE_NAME="soak-test"
-chart_name=$(helm list -f '^soak-test$' -n default -o json | jq -r '.[]|.name')
-[[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall -n default $CONTROLLER_CHART_RELEASE_NAME
+chart_name=$(helm list -f '^soak-test$' -o json | jq -r '.[]|.name')
+[[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall $CONTROLLER_CHART_RELEASE_NAME
 >&2 echo "installing helm chart"
-helm install -n default $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
+helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Helm chart $CONTROLLER_CHART_RELEASE_NAME successfully installed."
 
 # Build the soak test runner image
@@ -146,13 +145,13 @@ buildah push $SOAK_RUNNER_IMAGE >/dev/null
 
 # Check for already existing soak-test-runner helm chart
 export SOAK_CHART_RELEASE_NAME="soak-test-runner"
-chart_name=$(helm list -f '^soak-test-runner$' -n default -o json | jq -r '.[]|.name')
+chart_name=$(helm list -f '^soak-test-runner$' -o json | jq -r '.[]|.name')
 [[ -n $chart_name ]] \
 && echo "soak-on-release.sh] [INFO] Chart soak-test-runner already exists. Uninstalling..." >&2 \
-&& helm uninstall -n default $SOAK_CHART_RELEASE_NAME >/dev/null
+&& helm uninstall $SOAK_CHART_RELEASE_NAME >/dev/null
 
 cd "$TEST_INFRA_DIR"/soak/helm/ack-soak-test
-helm install --debug --dry-run -n default $SOAK_CHART_RELEASE_NAME . \
+helm install $SOAK_CHART_RELEASE_NAME . \
     --set awsService=$AWS_SERVICE \
     --set soak.imageRepo="public.ecr.aws/aws-controllers-k8s/soak" \
     --set soak.imageTag=$AWS_SERVICE \
@@ -170,6 +169,6 @@ do
 done
 
 echo "soak-on-release.sh] [INFO] Soak test is completed. Uninstalling controller and soak helm charts."
-helm uninstall -n default $SOAK_CHART_RELEASE_NAME >/dev/null
-helm uninstall -n default $CONTROLLER_CHART_RELEASE_NAME >/dev/null
+helm uninstall $SOAK_CHART_RELEASE_NAME >/dev/null
+helm uninstall $CONTROLLER_CHART_RELEASE_NAME >/dev/null
 echo "soak-on-release.sh] [INFO] Successfully finished soak prowjob for $AWS_SERVICE-controller release $VERSION"
