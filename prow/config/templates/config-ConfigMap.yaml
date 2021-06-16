@@ -37,8 +37,9 @@ data:
 
     plank:
       default_decoration_configs:
-        '*' :
-            timeout: 48h
+        '*':
+          timeout: 48h
+          grace_period: 10m
 
     deck:
       branding:
