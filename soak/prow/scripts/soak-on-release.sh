@@ -22,24 +22,6 @@ Environment variables:
 AWS_SERVICE=$(echo "$REPO_NAME" | rev | cut -d"-" -f2- | rev | tr '[:upper:]' '[:lower:]')
 VERSION=$PULL_BASE_REF
 
-ASSUME_EXIT_VALUE=0
-ACK_PROW_JOB_ARN=$(aws ssm get-parameter --name /ack/postsubmitjobrole --query Parameter.Value --output text 2>/dev/null) || ASSUME_EXIT_VALUE=$?
-if [ "$ASSUME_EXIT_VALUE" -ne 0 ]; then
-  >&2 echo "soak-on-release.sh] [SETUP] Could not find prow postsubmit job role for $AWS_SERVICE"
-  exit 1
-fi
-export ACK_PROW_JOB_ARN
->&2 echo "soak-on-release.sh] [SETUP] exported ACK_PROW_JOB_ARN"
-
-assume_base_creds() {
-  unset AWS_ACCESS_KEY_ID && unset AWS_SECRET_ACCESS_KEY && unset AWS_SESSION_TOKEN
-  local _ASSUME_COMMAND=$(aws sts assume-role --role-arn $ACK_PROW_JOB_ARN --role-session-name 'ack-soak-test' --duration-seconds 3600 | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
-  eval $_ASSUME_COMMAND
-  >&2 echo "soak-on-release.sh] [INFO] Assumed ACK_PROW_JOB_ARN"
-}
-
-assume_base_creds
-
 # Important directory references based on prowjob configuration.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SCRIPTS_DIR=$DIR
@@ -65,8 +47,8 @@ perform_buildah_and_helm_login
 
 # Assume the iam role used to create the EKS soak cluster
 assume_soak_creds() {
+  # unset previously assumed creds, and assume new creds using IRSA of postsubmit prowjob.
   unset AWS_ACCESS_KEY_ID && unset AWS_SECRET_ACCESS_KEY && unset AWS_SESSION_TOKEN
-  assume_base_creds
   local _ASSUME_COMMAND=$(aws sts assume-role --role-arn $ACK_ROLE_ARN --role-session-name 'ack-soak-test' --duration-seconds 3600 | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
   eval $_ASSUME_COMMAND
   >&2 echo "soak-on-release.sh] [INFO] Assumed ACK_ROLE_ARN"
@@ -99,6 +81,7 @@ export AWS_ACCOUNT_ID
 >&2 echo "soak-on-release.sh] [SETUP] Exported ACCOUNT_ID."
 
 aws eks update-kubeconfig --name soak-test-cluster >/dev/null
+# Use 'default' namespace by default and not 'test-pods' during helm commands.
 kubectl config set-context --current --namespace=default >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Updated the kubeconfig to communicate with 'soak-test-cluster' eks cluster."
 
@@ -112,21 +95,15 @@ export METRIC_SERVICE_TYPE_EVAL=".metrics.service.type = \"ClusterIP\""
 export AWS_REGION_EVAL=".aws.region = \"us-west-2\""
 export AWS_ACCOUNT_ID_EVAL=".aws.account_id = \"$AWS_ACCOUNT_ID\""
 
->&2 echo "exported values variables"
-
 yq eval "$SERVICE_ACCOUNT_ANNOTATION_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_CREATE_EVAL" -i values.yaml \
 && yq eval "$METRIC_SERVICE_TYPE_EVAL" -i values.yaml \
 && yq eval "$AWS_REGION_EVAL" -i values.yaml \
 && yq eval "$AWS_ACCOUNT_ID_EVAL" -i values.yaml
 
->&2 echo "updated values.yaml"
-cat values.yaml
-
 export CONTROLLER_CHART_RELEASE_NAME="soak-test"
 chart_name=$(helm list -f '^soak-test$' -o json | jq -r '.[]|.name')
 [[ -n $chart_name ]] && echo "Chart soak-test already exists. Uninstalling..." && helm uninstall $CONTROLLER_CHART_RELEASE_NAME
->&2 echo "installing helm chart"
 helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 >&2 echo "soak-on-release.sh] [INFO] Helm chart $CONTROLLER_CHART_RELEASE_NAME successfully installed."
 
@@ -156,13 +133,14 @@ helm install $SOAK_CHART_RELEASE_NAME . \
     --set soak.imageRepo="public.ecr.aws/aws-controllers-k8s/soak" \
     --set soak.imageTag=$AWS_SERVICE \
     --set soak.startTimeEpochSeconds=$(date +%s) \
-    --set soak.durationMinutes=1440
+    --set soak.durationMinutes=1440 >/dev/null
 
 # Loop until the Job executing soak test does not complete. Check again with 30 minutes interval.
 while kubectl get jobs/$AWS_SERVICE-soak-test -o=json | jq -r --exit-status '.status.completionTime'>/dev/null; [ $? -ne 0 ]
 do
-  >&2 echo "soak-on-release.sh] [INFO] Completion time is not present in the job status. Soak test is still running."
-  >&2 echo "soak-on-release.sh] [INFO] Sleeping for 30 mins..."
+  >&2 echo "soak-on-release.sh] [INFO] Current soak job($AWS_SERVICE-soak-test) status is $(kubectl get jobs/$AWS_SERVICE-soak-test -o=json | jq -r '.status')"
+  >&2 echo "soak-on-release.sh] [INFO] Completion time is not present in the job status. Soak test job is still running."
+  >&2 echo "soak-on-release.sh] [INFO] Current time is $(date) Sleeping for 30 mins..."
   sleep 1800
   # refresh the aws credentials to communicate with eks soak cluster
   assume_soak_creds
