@@ -128,7 +128,6 @@ helm install $CONTROLLER_CHART_RELEASE_NAME . >/dev/null
 cd "$TEST_INFRA_DIR"/soak
 SOAK_RUNNER_IMAGE="public.ecr.aws/aws-controllers-k8s/soak:$AWS_SERVICE"
 buildah bud \
-  --no-cache \
   -q \
   -t $SOAK_RUNNER_IMAGE \
   --build-arg AWS_SERVICE=$AWS_SERVICE \

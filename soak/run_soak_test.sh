@@ -2,10 +2,6 @@
 
 set -eo pipefail
 
-PYTEST_LOG_LEVEL=$(echo "${PYTEST_LOG_LEVEL:-"info"}" | tr '[:upper:]' '[:lower:]')
-PYTEST_NUM_THREADS=${PYTEST_NUM_THREADS:-"auto"}
-SOAK_TEST_DURATION_MINUTES="${SOAK_TEST_DURATION_MINUTES:-90}"
-
 DEFAULT_SOAK_CONFIG_PATH="$(pwd)/default_soak_config.yaml"
 CONTROLLER_SOAK_CONFIG_PATH="$CONTROLLER_E2E_PATH/soak_config.yaml"
 
