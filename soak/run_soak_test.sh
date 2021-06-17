@@ -43,7 +43,7 @@ do
 	  num_threads=$(yq eval ".pytestMarkers.$marker.numThreads // \"auto\"" $SOAK_CONFIG_PATH)
 	  dist=$(yq eval ".pytestMarkers.$marker.dist // \"no\"" $SOAK_CONFIG_PATH)
 	  log_cli=$(yq eval ".pytestMarkers.$marker.logCli // \"true\"" $SOAK_CONFIG_PATH)
-	  pytest -n $num_threads --dist $dist -o log_cli=$log_cli --log-cli-level $log_level --log-level $log_level .
+	  pytest -m "^$marker$" -n $num_threads --dist $dist -o log_cli=$log_cli --log-cli-level $log_level --log-level $log_level .
   done
 done
 
