@@ -10,7 +10,7 @@ ENV CONTROLLER_E2E_PATH ${CONTROLLER_E2E_PATH}
 
 WORKDIR /soak
 # Install dependencies for soak test environment
-RUN apk add --no-cache git bash gcc libc-dev \
+RUN apk add --no-cache git bash gcc libc-dev curl \
     && curl -L -s https://github.com/mikefarah/yq/releases/download/v4.9.6/yq_linux_amd64 --output /usr/bin/yq \
     && chmod +x /usr/bin/yq
 
