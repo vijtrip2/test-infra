@@ -25,7 +25,7 @@ spec:
               value: "True"
             - name: START_TIME_EPOCH_SECONDS
               value: {{ .Values.soak.startTimeEpochSeconds | quote }}
-            - name: SOAK_TEST_DURATION_MINUTES
+            - name: DEFAULT_SOAK_DURATION_MINUTES
               value: {{ .Values.soak.durationMinutes | quote }}
             - name: AWS_DEFAULT_REGION
               value: {{ .Values.awsRegion | quote }}
