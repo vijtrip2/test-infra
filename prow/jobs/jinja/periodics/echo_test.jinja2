@@ -1,4 +1,4 @@
-- interval: 5m
+- interval: 1m
   agent: kubernetes
   name: commenter-test
   decorate: true
@@ -14,7 +14,7 @@
         - |-
           --query=org:vijtrip2
         - --updated=1h
-        - --token=/etc/github/oauth
+        - --token=/etc/github/token
         - |-
           --comment=Adding a sample comment to the issue.
           Reopen the issue with `/reopen`.
@@ -23,10 +23,10 @@
         - --confirm
         - --ceiling=10
       volumeMounts:
-        - name: oauth
+        - name: github-token
           mountPath: /etc/github
           readOnly: true
     volumes:
-      - name: oauth
+      - name: github-token
         secret:
-        secretName: github-token
+          secretName: github-token
