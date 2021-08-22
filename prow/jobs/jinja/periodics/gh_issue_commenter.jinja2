@@ -1,0 +1,32 @@
+- interval: 1m
+  agent: kubernetes
+  name: commenter-test
+  decorate: true
+  annotations:
+    description: Testing the commenter
+  spec:
+    serviceAccountName: pre-submit-service-account
+    containers:
+    - image: gcr.io/k8s-prow/commenter:v20201116-dbd60ab192
+      command:
+        - /app/robots/commenter/app.binary
+      args:
+        - |-
+          --query=org:vijtrip2
+        - --updated=1h
+        - --token=/etc/github/token
+        - |-
+          --comment=Adding a sample comment to the issue.
+          Reopen the issue with `/reopen`.
+          /my-custom-label
+        - --template
+        - --confirm
+        - --ceiling=10
+      volumeMounts:
+        - name: github-token
+          mountPath: /etc/github
+          readOnly: true
+    volumes:
+      - name: github-token
+        secret:
+          secretName: prowjob-github-token
