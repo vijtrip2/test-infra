@@ -1,4 +1,4 @@
-- interval: 10m
+- interval: 24h
   agent: kubernetes
   name: commenter-test
   decorate: true
@@ -13,7 +13,7 @@
       args:
         - |-
           --query=org:vijtrip2
-        - --updated=9m
+        - --updated=24h
         - --token=/etc/github/token
         - |-
           --comment=Adding a sample comment to the issue.
