@@ -59,6 +59,7 @@ data:
         - hold
         - label
         - lgtm
+        - lifecycle
         - trigger
         - verify-owners
         - wip
