@@ -1,0 +1,21 @@
+  vijtrip2/code-generator:
+  - name: code-gen-post-submit
+    decorate: true
+    extra_refs:
+    - org: vijtrip2
+      repo: test-infra
+      base_ref: nithomso-prow-cluster
+      workdir: true
+{% for service in auto_generate_on_codegen_release_service_names  %}
+    - org: vijtrip2
+      repo: {{ service }}-controller
+      base_ref: main
+      workdir: false
+{% endfor %}
+    spec:
+      serviceAccountName: post-submit-service-account
+      containers:
+        - image: public.ecr.aws/m6e0o0r6/ack-controller-generate:0.0.1
+          command: ["/bin/bash", "-c", "cd cd/scripts && ./auto-generate-controller.sh"]
+    branches: #supports tags too.
+    - ^v[0-9]+\.[0-9]+\.[0-9]+$

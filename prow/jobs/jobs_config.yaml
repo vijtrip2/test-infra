@@ -1,4 +1,5 @@
-#This config is used to generate 'jobs.yaml' file from 'jobs_factory.py' using jinja2 templates.
+# This config is used to generate 'jobs.yaml' file from 'jobs_factory.py' using
+# jinja2 templates.
 
 # list of aws services supported in ACK
 aws_services:
@@ -18,6 +19,12 @@ aws_services:
 - sqs
 - ec2
 
-# list of aws services onboarded for soak test execution from prow cluster on every release
+# list of aws services onboarded for soak test execution from prow cluster on
+# every release
 soak_test_on_release_service_names:
+- ecr
+
+# list of aws service controllers to be auto-generated on every release of ACK code-generator
+auto_generate_on_codegen_release_service_names:
+- dynamodb
 - ecr

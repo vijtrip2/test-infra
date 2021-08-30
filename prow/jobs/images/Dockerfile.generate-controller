@@ -1,0 +1,35 @@
+FROM debian:buster-slim AS base
+
+ARG GOPROXY=https://proxy.golang.org|direct
+ENV GOPROXY=${GOPROXY}
+
+ARG GO_VERSION=1.15
+ENV GO_VERSION=${GO_VERSION}
+
+ENV GOPATH=/home/prow/go \
+    GO111MODULE=on \
+    PATH=/home/prow/go/bin:/usr/local/go/bin:${PATH}
+
+RUN echo "Installing packages ..." \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends\
+        build-essential \
+        ca-certificates \
+        make \
+        curl \
+        git \
+        gnupg2 \
+        software-properties-common \
+        lsb-release \
+        wget \
+        jq \
+        uuid-runtime \
+        apt-transport-https \
+        unzip
+
+RUN echo "Installing Go ..." \
+    && export GO_TARBALL="go${GO_VERSION}.linux-amd64.tar.gz"\
+    && curl -fsSL "https://storage.googleapis.com/golang/${GO_TARBALL}" --output "${GO_TARBALL}" \
+    && tar xzf "${GO_TARBALL}" -C /usr/local \
+    && rm "${GO_TARBALL}"\
+    && mkdir -p "${GOPATH}/bin"
