@@ -21,11 +21,15 @@ data:
     triggers:
     - repos:
       - {{ .Values.github.organisation }}
+      - vijtrip2/code-generator
+      - vijtrip2/dynamodb-controller
       - vijtrip2/ecr-controller
 
     approve:
     - repos:
       - {{ .Values.github.organisation }}
+      - vijtrip2/code-generator
+      - vijtrip2/dynamodb-controller
       - vijtrip2/ecr-controller
       require_self_approval: false
       lgtm_acts_as_approve: true
@@ -50,6 +54,32 @@ data:
         - trigger
         - verify-owners
         - wip
+      vijtrip2/code-generator:
+        plugins:
+        - approve
+        - assign
+        - blunderbuss
+        - help
+        - hold
+        - label
+        - lgtm
+        - lifecycle
+        - trigger
+        - verify-owners
+        - wip
+      vijtrip2/dynamodb-controller:
+        plugins:
+        - approve
+        - assign
+        - blunderbuss
+        - help
+        - hold
+        - label
+        - lgtm
+        - lifecycle
+        - trigger
+        - verify-owners
+        - wip
       vijtrip2/ecr-controller:
         plugins:
         - approve
@@ -63,4 +93,3 @@ data:
         - trigger
         - verify-owners
         - wip
-
