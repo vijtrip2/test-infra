@@ -18,4 +18,17 @@ WORKSPACE_DIR=$TEST_INFRA_DIR/..
 source "$TEST_INFRA_DIR"/scripts/lib/common.sh
 check_is_installed git
 
-echo "I am gonna generate the heckin controllers ... "
+echo "auto-generate-controller.sh][INFO] I am gonna generate the heckin controllers ... "
+
+cd "$WORKSPACE_DIR"
+# List all the controller names.
+controller_names=$(find . -maxdepth 1 -mindepth 1 -type d | cut -d"/" -f2 | grep -E "controller$")
+for controller_name in $controller_names; do
+  echo "$controller_name"
+  pushd "$WORKSPACE_DIR/$controller_name" >/dev/null
+    echo "=========================================="
+    git status
+    echo "=========================================="
+  popd
+done
+echo "auto-generate-controller.sh][INFO] Finished printing the git status for all the controllers."
