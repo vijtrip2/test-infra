@@ -24,11 +24,18 @@ cd "$WORKSPACE_DIR"
 # List all the controller names.
 controller_names=$(find . -maxdepth 1 -mindepth 1 -type d | cut -d"/" -f2 | grep -E "controller$")
 for controller_name in $controller_names; do
-  echo "$controller_name"
   pushd "$WORKSPACE_DIR/$controller_name" >/dev/null
     echo "=========================================="
+    echo "$controller_name"
     git status
     echo "=========================================="
-  popd
+  popd >/dev/null
 done
 echo "auto-generate-controller.sh][INFO] Finished printing the git status for all the controllers."
+
+echo "auto-generate-controller.sh][INFO] GH TOKEN: $GITHUB_TOKEN"
+echo "auto-generate-controller.sh][INFO] GH ACTOR: $GITHUB_ACTOR"
+
+gh issue list -R aws-controllers-k8s/community
+
+echo "auto-generate-controller.sh][INFO] finished printing issues using github cli"
