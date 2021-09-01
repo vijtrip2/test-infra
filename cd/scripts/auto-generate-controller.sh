@@ -14,8 +14,11 @@ CD_DIR=$DIR/..
 TEST_INFRA_DIR=$CD_DIR/..
 WORKSPACE_DIR=$TEST_INFRA_DIR/..
 CODEGEN_DIR=$WORKSPACE_DIR/code-generator
-TARGET_GIT_BRANCH="dummy"
-GH_ISSUE_REPO="vijtrip2/ecr-controller"
+PR_SOURCE_GH_BRANCH="dummy"
+PR_TARGET_GH_BRANCH="main"
+LOCAL_GIT_BRANCH="main"
+GH_ORG="vijtrip2"
+GH_ISSUE_REPO="ecr-controller"
 
 # Check all the dependencies are present in container.
 source "$TEST_INFRA_DIR"/scripts/lib/common.sh
@@ -63,7 +66,7 @@ for controller_name in $controller_names; do
     issue_title="ack-bot faced problem while generating service controller for $service_name service"
 
     echo -n "auto-generate-controller.sh][INFO] Querying already open GH issue ... "
-    issue_number=$(gh issue list -R "$GH_ISSUE_REPO" -L 1 -s open --json number -S "$issue_title" --jq '.[0].number' -A @me )
+    issue_number=$(gh issue list -R "$GH_ORG/$GH_ISSUE_REPO" -L 1 -s open --json number -S "$issue_title" --jq '.[0].number' -A @me )
     if [[ $? -ne 0 ]]; then
       echo ""
       echo "auto-generate-controller.sh][ERROR] unable to query open github issue. Skipping $controller_name."
@@ -73,7 +76,8 @@ for controller_name in $controller_names; do
 
     if [[ -z $issue_number ]]; then
       echo -n "auto-generate-controller.sh][INFO] No open issues exist. Creating a new GitHub issue ... "
-      if ! gh issue create -R "$GH_ISSUE_REPO" -t "$issue_title" -b "$issue_title . See the latest comment for error output." >/dev/null ; then
+      # TODO: move the error string into issue description.
+      if ! gh issue create -R "$GH_ORG/$GH_ISSUE_REPO" -t "$issue_title" -b "$issue_title . See the latest comment for error output." >/dev/null ; then
         echo ""
         echo "auto-generate-controller.sh][ERROR] Unable to create GitHub issue for reporting failure. Skipping $controller_name."
         continue
@@ -85,7 +89,7 @@ for controller_name in $controller_names; do
       echo "ok"
 
       echo -n "auto-generate-controller.sh][INFO] Querying the issue number of newly created GitHub issue ... "
-      issue_number=$(gh issue list -R "$GH_ISSUE_REPO" -L 1 -s open --json number -S "$issue_title" --jq '.[0].number' -A @me )
+      issue_number=$(gh issue list -R "$GH_ORG/$GH_ISSUE_REPO" -L 1 -s open --json number -S "$issue_title" --jq '.[0].number' -A @me )
       if [[ $? -ne 0 || -z $issue_number ]]; then
         echo ""
         echo "auto-generate-controller.sh][ERROR] Unable to query open github issue. Skipping $controller_name."
@@ -95,7 +99,7 @@ for controller_name in $controller_names; do
     fi
 
     echo -n "auto-generate-controller.sh][INFO] Adding error output as comment in issue#$issue_number in $GH_ISSUE_REPO ... "
-    if ! gh issue comment "$issue_number" -R "$GH_ISSUE_REPO" -F /tmp/"$service_name"_failure_logs >/dev/null; then
+    if ! gh issue comment "$issue_number" -R "$GH_ORG/$GH_ISSUE_REPO" -F /tmp/"$service_name"_failure_logs >/dev/null; then
       echo ""
       echo "auto-generate-controller.sh][ERROR] Unable to add error output as issue comment. Skipping $controller_name."
       continue
@@ -133,14 +137,40 @@ for controller_name in $controller_names; do
     fi
     echo "ok"
 
-    echo -n "auto-generate-controller.sh][INFO] Pushing changes to branch '$TARGET_GIT_BRANCH' ... "
-    if ! git push --force https://$GITHUB_TOKEN@github.com/vijtrip2/$controller_name.git main:$TARGET_GIT_BRANCH >/dev/null 2>&1; then
+    echo -n "auto-generate-controller.sh][INFO] Pushing changes to branch '$PR_SOURCE_GH_BRANCH' ... "
+    if ! git push --force https://$GITHUB_TOKEN@github.com/vijtrip2/$controller_name.git $LOCAL_GIT_BRANCH:$PR_SOURCE_GH_BRANCH >/dev/null 2>&1; then
       echo ""
       echo "auto-generate-controller.sh][ERROR] Failed to push the latest changes into remote repository. Skipping $controller_name."
       continue
     fi
     echo "ok"
-    # TODO: Send PR
+
+    echo -n "auto-generate-controller.sh][INFO] Finding existing open pull requests ... "
+    pr_number=$(gh pr list -R "$GH_ORG/$controller_name" -A @me -L 1 -s open --json number -S "$commit_message" --jq '.[0].number')
+    if [[ $? -ne 0 ]]; then
+      echo "auto-generate-controller.sh][ERROR] Failed to query for an existing pull request for $GH_ORG/$controller_name , from $PR_SOURCE_GH_BRANCH -> $PR_TARGET_GH_BRANCH branch."
+    fi
+    echo "ok"
+
+    if [[ -n $pr_number ]]; then
+      echo "auto-generate-controller.sh][INFO] PR#$pr_number already exists for $GH_ORG/$controller_name , from $PR_SOURCE_GH_BRANCH -> $PR_TARGET_GH_BRANCH branch."
+    else
+      echo -n "auto-generate-controller.sh][INFO] No Existing PRs found. Creating a new pull request for $GH_ORG/$controller_name , from $PR_SOURCE_GH_BRANCH -> $PR_TARGET_GH_BRANCH branch ... "
+      if [[ ! -f /tmp/ack-bot-pr-body ]]; then
+        touch /tmp/ack-bot-pr-body
+        echo "$commit_message" >> /tmp/ack-bot-pr-body
+        echo "By submitting this pull request, I confirm that my contribution is made under the terms of the Apache 2.0 license." >> /tmp/ack-bot-pr-body
+      fi
+
+      if ! gh pr create -R "$GH_ORG/$controller_name" -t "$commit_message" -b "$commit_message" -F /tmp/ack-bot-pr-body -H $PR_SOURCE_GH_BRANCH >/dev/null ; then
+        echo ""
+        echo "auto-generate-controller.sh][ERROR] Failed to create pull request. Skipping $controller_name."
+        continue
+      else
+        echo "ok"
+      fi
+    fi
+    echo "auto-generate-controller.sh][INFO] Done. :) "
   popd >/dev/null
 done
 
