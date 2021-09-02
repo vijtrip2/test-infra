@@ -1,9 +1,15 @@
 $ISSUE_TITLE
 
-Command output for \`make build-controller\`:
+output for \`make build-controller\`:
 \`\`\`
-$COMMAND_OUTPUT
+$MAKE_BUILD_OUTPUT
 \`\`\`
+
+Error output for \`make build-controller\`:
+\`\`\`
+$MAKE_BUILD_ERROR_OUTPUT
+\`\`\`
+
 
 How to Fix:
 * Generate the service controller locally using latest aws-controllers-k8s/code-generator
