@@ -1,0 +1,12 @@
+$ISSUE_TITLE
+
+Command output for \`make build-controller\`:
+\`\`\`
+$COMMAND_OUTPUT
+\`\`\`
+
+How to Fix:
+* Generate the service controller locally using latest aws-controllers-k8s/code-generator
+* Update go.mod file to update aws-controllers-runtime to $ACK_RUNTIME_VERSION
+* Run \`go mod tidy\`
+* Create new pull request for $CONTROLLER_NAME
