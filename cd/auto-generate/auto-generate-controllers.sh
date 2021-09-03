@@ -195,7 +195,7 @@ for CONTROLLER_NAME in $CONTROLLER_NAMES; do
 
     # Force push the new changes into '$PR_SOURCE_BRANCH'
     echo -n "auto-generate-controllers.sh][INFO] Pushing changes to branch '$PR_SOURCE_BRANCH' ... "
-    if ! git push --force "https://$GITHUB_TOKEN@github.com/$GH_ORG/$CONTROLLER_NAME.git" -u origin "$PR_SOURCE_BRANCH" >/dev/null 2>&1; then
+    if ! git push --force "https://$GITHUB_TOKEN@github.com/$GH_ORG/$CONTROLLER_NAME.git" "$PR_SOURCE_BRANCH:$PR_SOURCE_BRANCH" >/dev/null; then
       echo ""
       echo "auto-generate-controllers.sh][ERROR] Failed to push the latest changes into remote repository. Skipping $CONTROLLER_NAME"
       continue
