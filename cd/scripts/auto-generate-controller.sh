@@ -19,11 +19,20 @@ PR_TARGET_GH_BRANCH="main"
 LOCAL_GIT_BRANCH="main"
 GH_ORG="vijtrip2"
 GH_ISSUE_REPO="ecr-controller"
+GITHUB_NO_REPLY_EMAIL_PREFIX="82905295+ack-bot@users.noreply.github.com"
 
 # Check all the dependencies are present in container.
 source "$TEST_INFRA_DIR"/scripts/lib/common.sh
 check_is_installed git
 check_is_installed gh
+
+user_email="${GITHUB_ACTOR}@users.noreply.${GITHUB_DOMAIN:-"github.com"}"
+if [ -n "${GITHUB_NO_REPLY_EMAIL_PREFIX}" ]; then
+    user_email="${GITHUB_NO_REPLY_EMAIL_PREFIX}+${user_email}"
+fi
+
+git config --global user.name "${GITHUB_ACTOR}" >/dev/null
+git config --global user.email "${user_email}" >/dev/null
 
 # Findout the runtime semver from the code-generator repo
 cd "$CODEGEN_DIR"
